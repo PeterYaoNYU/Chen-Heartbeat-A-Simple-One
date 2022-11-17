@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 #define BUFSIZE 1024
-#define NUM_PKT 100
+#define NUM_PKT 1000
 #define MILLION 1000000L
 void error_handling(char * msg);
 
@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
     bind(serv_sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr));
     pkt * recv_pkt = (pkt*)malloc(sizeof(pkt));
     struct timeval pkt_arrive_date;
-    long * latency = (long *)malloc(100 * sizeof(long));
+    long * latency = (long *)malloc(NUM_PKT * sizeof(long));
 
     while(1){
         clnt_adr_sz = sizeof(clnt_adr);

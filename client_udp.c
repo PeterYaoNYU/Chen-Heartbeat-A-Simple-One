@@ -37,7 +37,7 @@ int main(int argc, char * argv[]){
     serv_adr.sin_addr.s_addr = inet_addr(server_ip);
     serv_adr.sin_port = htons(atoi(argv[1]));
 
-    for (i = 0; i < 100; i++){
+    for (i = 0; i < 1000; i++){
         num_to_send = htonl(i);
         test->id = num_to_send;
         gettimeofday(&(test->send_time), NULL);
