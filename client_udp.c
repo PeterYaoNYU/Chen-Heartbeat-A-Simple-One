@@ -37,15 +37,16 @@ int main(int argc, char * argv[]){
     serv_adr.sin_addr.s_addr = inet_addr(server_ip);
     serv_adr.sin_port = htons(atoi(argv[1]));
 
-    for (i = 0; i < 10000; i++){
+    for (i = 0; i < 100; i++){
         num_to_send = htonl(i);
         test->id = num_to_send;
         gettimeofday(&(test->send_time), NULL);
         test->send_time.tv_sec = htonl(test->send_time.tv_sec);
         test->send_time.tv_usec = htonl(test->send_time.tv_usec); 
-        sendto(sock, test, 1, 0, (struct sockaddr*)&serv_adr, sizeof(serv_adr));
+        sendto(sock, (char*)test, sizeof(pkt), 0, (struct sockaddr*)&serv_adr, sizeof(serv_adr));
         // printf("the number sent: %d\n", ntohl(num_to_send));
         printf("the msg sent: %d\n", ntohl(test->id));
+        printf("the time sent: %d\n", ntohl(test->send_time.tv_usec));
     }
     printf("sock closing\n");
     close(sock);
