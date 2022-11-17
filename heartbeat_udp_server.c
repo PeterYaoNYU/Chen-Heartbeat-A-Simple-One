@@ -1,3 +1,5 @@
+        // is clock drift a problem here?
+        // udp packet loss?
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,6 +7,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <math.h>
 
 #define BUFSIZE 1024
 #define NUM_PKT 1000
@@ -19,8 +22,6 @@ typedef struct test_network_packet{
 int main(int argc, char * argv[])
 {
     int serv_sock;
-    // char message[BUFSIZE];
-    // int message;
     int str_len;
     socklen_t clnt_adr_sz;
     struct sockaddr_in serv_adr, clnt_adr;
@@ -42,8 +43,13 @@ int main(int argc, char * argv[])
     pkt * recv_pkt = (pkt*)malloc(sizeof(pkt));
     struct timeval pkt_arrive_date;
     long * latency = (long *)malloc(NUM_PKT * sizeof(long));
+    // clear the memory to 0 to see if there is a packet missing
+    memset(latency, 0, sizeof(long)*NUM_PKT);
+    long mean_latency = 0;
+    long std_dev_latency = 0;
+    int i;
 
-    while(1){
+    for (i = 0; i < NUM_PKT; i++){
         clnt_adr_sz = sizeof(clnt_adr);
         recvfrom(serv_sock, (char*)recv_pkt, sizeof(pkt), 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
         // pkt received, timestamp it!
@@ -54,6 +60,16 @@ int main(int argc, char * argv[])
         // printf("%d\n", ntohl(recv_pkt->id));
         // printf("%d\n", ntohl(recv_pkt->send_time.tv_usec));
     }
+    // calculate the mean latency to determine the safety margin
+    for (i = 0; i < NUM_PKT; i++){
+        mean_latency += latency[i]/NUM_PKT;
+    }
+    // calculate the std deviation to determine the dafety margin
+    for (i = 0; i < NUM_PKT; i++){
+        std_dev_latency += pow(latency[i] - mean_latency, 2);
+    }
+    std_dev_latency = sqrt(std_dev_latency/NUM_PKT);
+    printf("the stddev is %ld, and the mean is %ld\n", std_dev_latency, mean_latency);
     close(serv_sock);
     return 0;
 }

@@ -40,6 +40,8 @@ int main(int argc, char * argv[]){
     for (i = 0; i < 1000; i++){
         num_to_send = htonl(i);
         test->id = num_to_send;
+        // is clock drift a problem here?
+        // udp packet loss?
         gettimeofday(&(test->send_time), NULL);
         test->send_time.tv_sec = htonl(test->send_time.tv_sec);
         test->send_time.tv_usec = htonl(test->send_time.tv_usec); 
