@@ -8,6 +8,11 @@
 #define BUFSIZE 1024
 void error_handling(char * msg);
 
+typedef struct test_network_packet{
+    int id;
+    struct timeval send_time;
+} pkt;
+
 int main(int argc, char * argv[])
 {
     int serv_sock;
