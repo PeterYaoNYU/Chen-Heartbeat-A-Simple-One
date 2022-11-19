@@ -37,11 +37,9 @@ int main(int argc, char * argv[]){
     serv_adr.sin_addr.s_addr = inet_addr(server_ip);
     serv_adr.sin_port = htons(atoi(argv[1]));
 
-    for (i = 0; i < 1000; i++){
+    for (i = 0; i < 100; i++){
         num_to_send = htonl(i);
         test->id = num_to_send;
-        // is clock drift a problem here?
-        // udp packet loss?
         gettimeofday(&(test->send_time), NULL);
         test->send_time.tv_sec = htonl(test->send_time.tv_sec);
         test->send_time.tv_usec = htonl(test->send_time.tv_usec); 
@@ -49,6 +47,27 @@ int main(int argc, char * argv[]){
         // printf("the number sent: %d\n", ntohl(num_to_send));
         printf("the msg sent: %d\n", ntohl(test->id));
         printf("the time sent: %d\n", ntohl(test->send_time.tv_usec));
+    }
+    sleep (2);
+    for (int j = 0; j < 10; j++){
+        i ++;
+        test->id = htonl(i);
+        gettimeofday(&(test->send_time), NULL);
+        test->send_time.tv_sec = htonl(test->send_time.tv_sec);
+        test->send_time.tv_usec = htonl(test->send_time.tv_usec); 
+        sendto(sock, (char*)test, sizeof(pkt), 0, (struct sockaddr*)&serv_adr, sizeof(serv_adr));
+        printf("the msg sent: %d\n", ntohl(test->id));
+        sleep(1);
+    }
+    while (1){
+        i ++;
+        test->id = htonl(i);
+        gettimeofday(&(test->send_time), NULL);
+        test->send_time.tv_sec = htonl(test->send_time.tv_sec);
+        test->send_time.tv_usec = htonl(test->send_time.tv_usec); 
+        sendto(sock, (char*)test, sizeof(pkt), 0, (struct sockaddr*)&serv_adr, sizeof(serv_adr));
+        printf("the msg sent: %d\n", ntohl(test->id));
+        sleep(1);
     }
     printf("sock closing\n");
     close(sock);
