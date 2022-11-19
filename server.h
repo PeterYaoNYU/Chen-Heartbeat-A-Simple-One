@@ -7,9 +7,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <math.h>
-        // is clock drift a problem here?
-        // udp packet loss?
-        // lost packet detection
+// is clock drift a problem here?
 // consider the n most recent heartbeat
 
 #define N 5

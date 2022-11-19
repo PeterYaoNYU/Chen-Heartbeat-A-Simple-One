@@ -4,6 +4,8 @@ int main(int argc, char * argv[])
 {
     int serv_sock;
     int str_len;
+    // to give an estimate of the packet loss situation
+    int lost_packet_count = 0;
     socklen_t clnt_adr_sz;
     struct sockaddr_in serv_adr, clnt_adr;
     if (argc!=2){
@@ -42,14 +44,19 @@ int main(int argc, char * argv[])
     }
     // calculate the mean latency to determine the safety margin
     for (i = 0; i < NUM_PKT; i++){
+        if (latency[i] == 0){
+            lost_packet_count++;
+        }
         mean_latency += latency[i]/NUM_PKT;
     }
     // calculate the std deviation to determine the dafety margin
     for (i = 0; i < NUM_PKT; i++){
-        std_dev_latency += pow(latency[i] - mean_latency, 2);
+        if (latency[i] != 0){
+            std_dev_latency += pow(latency[i] - mean_latency, 2);
+        }
     }
     std_dev_latency = sqrt(std_dev_latency/NUM_PKT);
-    printf("the stddev is %ld, and the mean is %ld\n", std_dev_latency, mean_latency);
+    printf("the stddev is %ld, and the mean is %ld, the number of lost UDP packets is %d\n", std_dev_latency, mean_latency, lost_packet_count);
 
     // enter the heartbeat state
     // init the need memory and value
@@ -73,6 +80,7 @@ int main(int argc, char * argv[])
         // reveive the heatbeat packet
         str_len = recvfrom(serv_sock, (void*)recv_pkt, sizeof(pkt), 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
         if (str_len <= 0){
+            // did not receive the packet, continue waiting
             continue;
         }
         gettimeofday(&pkt_arrive_date, NULL);
@@ -94,7 +102,6 @@ int main(int argc, char * argv[])
             ea.tv_usec += (N-1) * heartbeat_period.tv_usec / N;
             set_up_itimer(ea.tv_sec, ea.tv_usec, safety_margin);
             printf("pkt %d received, next arrival estimate: sec %ld, usec %ld\n", ntohl(recv_pkt->id), ea.tv_sec, ea.tv_usec);
-
         } else if (count == N){
             // enough packets gathered, making first estimate and initialize the signal handler 
             count++;         
@@ -154,4 +161,3 @@ int set_up_itimer(long sec, long usec, long safety_margin){
     value.it_value = value.it_interval;
     return (setitimer(ITIMER_REAL, &value, NULL));
 }
-
