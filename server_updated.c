@@ -66,7 +66,7 @@ int main(int argc, char * argv[])
         if (j>k){
             k = j;
             if (j < N){
-                printf("not enough packets received to make an estimat\n");
+                printf("not enough packets received to make an estimate\n");
             } else {
                 // i have no idea how you would handle the packet loss
                 // assume that the network is stable
@@ -120,7 +120,7 @@ int set_up_interrupt(){
 int set_up_itimer(long sec, long usec, long safety_margin){
     struct timeval now;
     gettimeofday(&now, NULL);
-    printf("the time now is %ld, %ld\n", now.tv_sec, now.tv_usec);
+    printf("the time now is %ld, %ld; expected arrival of the next packet: %ld, %ld\n", now.tv_sec, now.tv_usec, sec, usec);
     struct itimerval value;
     value.it_interval.tv_sec = sec-now.tv_sec;
     value.it_interval.tv_usec = usec - now.tv_usec + safety_margin;
